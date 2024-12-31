@@ -22,13 +22,48 @@ class SecondSensorController extends Controller
             // Fetch data dari Firebase
             $response = $client->get($firebaseUrl, ['verify' => false]);
             $data = json_decode($response->getBody(), true);
-
-            // Data olahan untuk Blade
-            $temperature = $data['temperature'] ?? null;
-            $condition = $temperature < 20 ? 'Dingin' : ($temperature <= 30 ? 'Normal' : 'Panas');
-            $description = $condition == 'Dingin' ? 'Air terlalu dingin' : ($condition == 'Normal' ? 'Air dalam kondisi baik' : 'Air terlalu panas');
-
-            return view('secondsensor.index', compact('user', 'temperature', 'condition', 'description'));
+    
+            $sensors = [];
+            $history = [];
+            $latestTemperature = null;
+            $condition = null;
+            $description = null;
+            $latestTimestamp = null;
+    
+            if (is_array($data)) {
+                // Urutkan data berdasarkan suhu terkecil
+                uasort($data, function($a, $b) {
+                    return $a['temperature_celsius'] - $b['temperature_celsius']; // Mengurutkan suhu dari terkecil ke terbesar
+                });
+    
+                // Ambil data dengan suhu terendah dan suhu tertinggi untuk grafik
+                foreach ($data as $key => $value) {
+                    $history[] = [
+                        'time' => date('H:i:s', strtotime($value['timestamp'] ?? '')),
+                        'temperature' => $value['temperature_celsius'] ?? null,
+                    ];
+                }
+    
+                // Tentukan kondisi air berdasarkan suhu
+                $latestData = end($data); // Ambil data terakhir (tertinggi)
+                if ($latestData) {
+                    $latestTemperature = $latestData['temperature_celsius'] ?? null;
+                    $latestTimestamp = $latestData['timestamp'] ?? null;
+    
+                    if ($latestTemperature < 20) {
+                        $condition = 'Dingin';
+                        $description = 'Air terlalu dingin';
+                    } elseif ($latestTemperature <= 30) {
+                        $condition = 'Normal';
+                        $description = 'Air dalam kondisi baik';
+                    } else {
+                        $condition = 'Panas';
+                        $description = 'Air terlalu panas';
+                    }
+                }
+            }
+    
+            return view('secondsensor.index', compact('user', 'history', 'latestTemperature', 'condition', 'description', 'latestTimestamp'));
         } catch (\Exception $e) {
             // Tangani error
             return response()->json(['error' => $e->getMessage()]);

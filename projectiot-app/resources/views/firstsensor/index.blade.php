@@ -7,9 +7,10 @@
         <div class="col-md-4">
             <div class="card">
                 <div class="card-body text-center">
-                    <h5>Suhu Air</h5>
-                    <h1 class="text-success">{{ $temperature ?? 'Tidak tersedia' }} °C</h1>
-                    <small class="text-muted">Kategori: {{ $condition ?? 'Tidak tersedia' }}</small>
+                    <h5>Suhu Air Terbaru</h5>
+                    <h1 class="text-success">{{ $latestTemperature ?? 'Tidak tersedia' }} °C</h1>
+                    <small class="text-muted">Kategori: {{ $condition ?? 'Tidak tersedia' }}</small><br>
+                    <small class="text-muted">Timestamp Terakhir: {{ $latestTimestamp ?? 'Tidak tersedia' }}</small>
                 </div>
             </div>
         </div>
@@ -26,7 +27,7 @@
                 <div class="card-body text-center">
                     <h5>Keterangan</h5>
                     <h1 class="text-primary">
-                        {{ $temperature > 30 ? 'Air harus diganti' : 'Air tidak diganti' }}
+                        {{ $latestTemperature > 30 ? 'Air harus diganti' : 'Air tidak diganti' }}
                     </h1>
                 </div>
             </div>
@@ -57,7 +58,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 <script>
     // Data from Controller
-    const currentTemperature = {{ $temperature ?? 0 }};
+    const currentTemperature = {{ $latestTemperature ?? 0 }};
     const historyData = @json($history ?? []);
     const historyLabels = historyData.map(data => data.time ?? 'N/A');
     const historyValues = historyData.map(data => data.temperature ?? 0);
