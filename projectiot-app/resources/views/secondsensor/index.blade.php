@@ -110,23 +110,60 @@
     });
 
     const ctxHistory = document.getElementById('temperatureHistory').getContext('2d');
-    const temperatureHistory = new Chart(ctxHistory, {
-        type: 'line',
-        data: {
-            labels: historyLabels,
-            datasets: [{
-                label: 'Temperature (°C)',
-                data: historyValues,
-                borderColor: '#007bff',
-                fill: false,
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { display: true },
+        const temperatureHistory = new Chart(ctxHistory, {
+            type: 'line',
+            data: {
+                labels: historyLabels, // Data waktu dari controller
+                datasets: [{
+                    label: 'Temperature (°C)',
+                    data: historyValues, // Data suhu dari controller
+                    borderColor: '#007bff',
+                    fill: false,
+                }]
             },
-        }
-    });
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true
+                    },
+                    zoom: {
+                        pan: {
+                            enabled: true, // Aktifkan fitur pan (geser)
+                            mode: 'x', // Geser hanya pada sumbu X (horizontal)
+                        },
+                        zoom: {
+                            wheel: {
+                                enabled: true, // Zoom menggunakan scroll wheel mouse
+                            },
+                            pinch: {
+                                enabled: true, // Zoom menggunakan pinch (gesture touch)
+                            },
+                            limits: {
+                                x: {
+                                    min: 5,
+                                    max: 500
+                                }, // Minimal dan maksimal data yang dapat dilihat dalam satu waktu
+                            },
+                            mode: 'x', // Zoom hanya pada sumbu X (horizontal)
+                        },
+                    }
+                },
+                scales: {
+                    x: {
+                        type: 'category',
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 0,
+                        },
+                    },
+                    y: {
+                        ticks: {
+                            stepSize: 5, // Mengatur interval suhu pada sumbu Y
+                        },
+                    },
+                },
+            }
+        });
 </script>
 @endsection
